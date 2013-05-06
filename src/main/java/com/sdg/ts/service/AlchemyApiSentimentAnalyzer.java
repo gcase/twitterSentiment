@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
 
 public class AlchemyApiSentimentAnalyzer implements SentimentAnalyzer {
-
 
     @Value("${alchemy.api.key}")
     private String apiKey;
@@ -32,17 +32,9 @@ public class AlchemyApiSentimentAnalyzer implements SentimentAnalyzer {
     @Override
     public Sentiment analyze(String text) {
 
-        URIBuilder builder = new URIBuilder();
-        builder.setScheme("http")
-                .setHost("access.alchemyapi.com")
-                .setPath("/calls/text/TextGetTextSentiment")
-                .setParameter("apikey", apiKey)
-                .setParameter("text", text)
-                .setParameter("outputMode", "json");
-
         try {
 
-            URI uri = builder.build();
+            URI uri = buildUri(text);
             log.debug("Sending request : " + uri.toString());
 
             HttpPost httpPost = new HttpPost(uri);
@@ -53,30 +45,14 @@ public class AlchemyApiSentimentAnalyzer implements SentimentAnalyzer {
 
             log.debug("Response body : " + responseBody);
 
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> responseJson = mapper.readValue(responseBody, Map.class);
-
-
-            String status = (String) responseJson.get("status");
-
-            if (!"ok".equalsIgnoreCase(status)) {
-                String error = (String) responseJson.get("statusInfo");
-                log.error("Error using api: {}", error);
+            Sentiment sentiment = parseSentiment(responseBody);
+            if (sentiment == null) {
                 return null;
             }
 
-            Map<String, String> docSentiment = (Map<String, String>) responseJson.get("docSentiment");
+            log.info("result: " + sentiment);
 
-            String moodString = docSentiment.get("type");
-            Mood mood = Mood.valueOf(moodString.toString().toUpperCase());
-            String scoreString = docSentiment.get("score");
-            float confidence = StringUtils.isEmpty(scoreString) ? 0 : Float.valueOf(scoreString);
-            Sentiment result = new Sentiment(mood, confidence);
-
-            log.info("result: " + result);
-
-            return result;
-
+            return sentiment;
 
         } catch (URISyntaxException e) {
             log.error("Exception building uri", e);
@@ -84,8 +60,44 @@ public class AlchemyApiSentimentAnalyzer implements SentimentAnalyzer {
             log.error("Exception", e);
         }
         return null;
-
     }
+
+    private Sentiment parseSentiment(String responseBody) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> responseJson = mapper.readValue(responseBody, Map.class);
+
+        String status = (String) responseJson.get("status");
+
+        if (!"ok".equalsIgnoreCase(status)) {
+            String error = (String) responseJson.get("statusInfo");
+            log.error("Error using api: {}", error);
+            return null;
+        }
+
+        Map<String, String> docSentiment = (Map<String, String>) responseJson.get("docSentiment");
+
+        String moodString = docSentiment.get("type");
+        Mood mood = Mood.valueOf(moodString.toString().toUpperCase());
+        String scoreString = docSentiment.get("score");
+        float confidence = StringUtils.isEmpty(scoreString) ? 0 : Float.valueOf(scoreString);
+        Sentiment result = new Sentiment(mood, confidence);
+        return result;
+    }
+
+
+    private URI buildUri(String text) throws URISyntaxException {
+
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("http")
+                .setHost("access.alchemyapi.com")
+                .setPath("/calls/text/TextGetTextSentiment")
+                .setParameter("apikey", apiKey)
+                .setParameter("text", text)
+                .setParameter("outputMode", "json");
+
+        return builder.build();
+    }
+
 
     public String getApiKey() {
         return apiKey;

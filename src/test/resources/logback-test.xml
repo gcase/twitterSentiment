@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.sdg" level="INFO"/>
+    <logger name="com.sdg" level="DEBUG"/>
     <logger name="org.springframework.batch.core" level="INFO"/>
 
     <root level="INFO">

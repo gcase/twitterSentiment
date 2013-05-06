@@ -42,7 +42,7 @@ public class AlchemyApiSentimentAnalyzerTest {
     @Test
     public void sanityCheck() throws Exception {
 
-        Sentiment sentiment = sentimentAnalyzer.analyze("Iron Man 3 was incredible.  It was exciting and super cool!");
+        Sentiment sentiment = sentimentAnalyzer.analyze("Wow. I don't mean to be mean but I really didn't enjoy Iron Man 3. Super let down.");
         Assert.assertNotNull(sentiment);
         Assert.assertEquals(Mood.POSITIVE, sentiment.getMood());
 
