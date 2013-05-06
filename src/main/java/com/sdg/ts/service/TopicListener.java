@@ -2,6 +2,7 @@ package com.sdg.ts.service;
 
 import com.sdg.ts.model.Topic;
 import com.sdg.ts.model.Tweet;
+import com.sdg.ts.repos.TweetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class TopicListener {
 
     @Autowired
     private TweetSink tweetSink;
+
+    @Autowired
+    private TweetRepository tweetRepository;
 
     public Topic getTopic() {
         return topic;
@@ -45,12 +49,17 @@ public class TopicListener {
                 tweet.setUsername(status.getUser().getScreenName());
                 tweet.setDate(new Date());
                 tweet.setText(status.getText());
-
+                tweet.setStatusId(status.getId());
                 tweetSink.accept(tweet);
 
             }
 
-            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+                long statusId = statusDeletionNotice.getStatusId();
+                tweetRepository.deleteByStatusId(statusId);
+
+
+            }
 
             public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
                log.warn("Track Limitation Notice :  {}", numberOfLimitedStatuses);
@@ -58,6 +67,7 @@ public class TopicListener {
 
             @Override
             public void onScrubGeo(long userId, long upToStatusId) {
+                //not tracked, can be ignored
             }
 
             @Override

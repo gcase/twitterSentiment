@@ -9,13 +9,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Greg
- * Date: 5/4/13
- * Time: 1:58 AM
- * To change this template use File | Settings | File Templates.
- */
 public class SentimentStats {
 
     private List<Sentiment> positives = Lists.newArrayList();

@@ -1,7 +1,6 @@
 package com.sdg.ts.service;
 
 
-import com.google.common.collect.Queues;
 import com.sdg.ts.model.Sentiment;
 import com.sdg.ts.model.Tweet;
 import com.sdg.ts.repos.TweetRepository;
@@ -10,27 +9,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
-import javax.annotation.PostConstruct;
 import java.util.concurrent.*;
 
 public class AnalyzingTweetSink implements TweetSink {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalyzingTweetSink.class);
 
-    private BlockingQueue<Tweet> queue = Queues.newLinkedBlockingQueue(100);
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Semaphore available = new Semaphore(100, true);
-
     @Autowired
     private TweetRepository tweetRepository;
 
     private SentimentAnalyzer analyzer;
 
-    private SentimentStats stats = new SentimentStats();
-
-    @PostConstruct
-    public void postConstruct() {
-    }
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final SentimentStats stats = new SentimentStats();
+    private final Semaphore available = new Semaphore(100, true);
 
     @Override
     public void accept(Tweet tweet) {
@@ -51,13 +43,17 @@ public class AnalyzingTweetSink implements TweetSink {
         Sentiment sentiment = null;
         try {
             sentiment = result.get();
-            stats.add(sentiment);
+            tweet.setSentiment(sentiment);
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (ExecutionException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+        finally {
+            available.release();
+        }
         logger.info("{} Sentiment: {}", tweet.getText(), sentiment);
+
 
         tweetRepository.save(tweet);
     }

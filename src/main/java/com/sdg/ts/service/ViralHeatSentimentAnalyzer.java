@@ -26,7 +26,6 @@ import java.util.Map;
 
 public class ViralHeatSentimentAnalyzer implements SentimentAnalyzer {
 
-
     @Value("${viralheat.api.key}")
     private String apiKey;
 

@@ -1,9 +1,6 @@
 package com.sdg.ts.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -18,6 +15,10 @@ public class Tweet {
     private String username;
 
     private Date date;
+
+    private Sentiment sentiment;
+
+    private Long statusId;
 
     public Long getTweetId() {
         return tweetId;
@@ -49,6 +50,22 @@ public class Tweet {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Sentiment getSentiment() {
+        return sentiment;
+    }
+
+    public void setSentiment(Sentiment sentiment) {
+        this.sentiment = sentiment;
+    }
+
+    public Long getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 
 }
