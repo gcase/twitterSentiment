@@ -1,4 +1,4 @@
-Applying Sentiment Analysis to Twitter.
+# Applying Sentiment Analysis to Twitter
 
 Although social media has enabled consumers and businesses to connect like never before, it offers its own set of challenges. The sheer flood of information makes it difficult to perform informed decisions. For instance, how is the brand manager of Acme Corp supposed to handle the launch of the new "WonderWidget" line?   There could be tens of thousands of tweets that need analyzing. Not to mention Facebook comments, YouTube, Pinterest and Amazon reviews. This is where Sentiment Analysis comes in. 
 
@@ -18,28 +18,29 @@ Sentiment Analysis is the process of taking a block of text and determining if t
 
 Now, taking this table, we can assign values to the following sentences:
 
-_The movie was *great*! *Excellent* explosions!_   5 + 10 = 15
+_The movie was **great**! **Excellent** explosions!_   5 + 10 = 15
 
-_I though the movie was *terrible*. *Boring*!_   -5 + -3  = -8
+_I though the movie was **terrible**. **Boring**!_   -5 + -3  = -8
 
 So far so good, for these completely contrived and unrealistic examples. But notice how quickly we run into trouble. For instance, the word “sick” can mean different things in context:
 
-_I got *sick* after I ate Taco Bell._
+_I got **sick** after I ate Taco Bell._
 
-_These rhymes are *sick*!_
+_These rhymes are **sick**!_
 
 Our naïve approach would treat both of these as negative sentiments, even though the latter is expressing approval of some “sick rhymes”.
-Additional, the subject of phrase greatly affects how what a positive viewpoint means. For instance, I’d love to read an unpredictable mystery novel, but would stay away from a car with unpredictable brakes.
+Additionally, the subject of phrase greatly affects how what a positive viewpoint means. For instance, I’d love to read an unpredictable mystery novel, but would stay away from a car with unpredictable brakes.
 
 Clearly the dictionary approach has some significant limitations. In order to do a proper job of sentiment analysis, some natural language processing needs to be done. Natural language processing takes human input, whether textual or spoken, and converts it to a form where a computer can infer some meaning. However, going into the methods and science of natural language processing is beyond the scope of this article, and frankly, well beyond the understanding of this author. The good news is, there are several companies that provide this service. 
 
-For the purposes of this article, we’ll be using [AlchemyAPI](http://www.alchemyapi.com/). AlchemyAPI provide a REST interface which will analyze the provided text and give a result as follows. To sign up for a developer key (necessary for running any of the sample code, you can register [here](http://www.alchemyapi.com/api/register.html).
+For the purposes of this article, we’ll be using [AlchemyAPI](http://www.alchemyapi.com/). ![Alchemy Api Logo](http://www.alchemyapi.com/sites/default/files/Logo60Height.png "Alchemy API")
+
+AlchemyAPI provide a REST interface which will analyze the provided text and give a result as follows. To sign up for a developer key (necessary for running any of the sample code, you can register [here](http://www.alchemyapi.com/api/register.html).
 
 Let’s use the service analyze this actual tweet by John Carmick about the new Iron Man 3 movie:
 
 <blockquote class="twitter-tweet"><p>Iron Man 3 was fun, but letting the tech genie of autonomously controlled, series produced armor out of the bottle hampers future stories.</p>&mdash; John Carmack (@ID_AA_Carmack) <a href="https://twitter.com/ID_AA_Carmack/status/331232260856639488">May 6, 2013</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
 
 Doing a POST to http://access.alchemyapi.com/calls/text/TextGetTextSentiment?apikey=XXXXX&text=Iron+Man+3+was+fun%2C+but+letting+the+tech+genie+of+autonomously+controlled%2C+series+produced+armor+out+of+the+bottle+hampers+future+stories.&outputMode=json
 provides the following response:
