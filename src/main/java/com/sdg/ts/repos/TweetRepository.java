@@ -15,4 +15,8 @@ public interface TweetRepository extends CrudRepository<Tweet, Long> {
     @Modifying
     public void deleteByStatusId(@Param("statusId") Long statusId);
 
+
+    public Tweet findByStatusId(Long statusId);
+
+
 }

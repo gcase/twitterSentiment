@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AnalyzingTweetSink implements TweetSink {
 
@@ -22,40 +23,16 @@ public class AnalyzingTweetSink implements TweetSink {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final SentimentStats stats = new SentimentStats();
-    private final Semaphore available = new Semaphore(100, true);
 
     @Override
     public void accept(Tweet tweet) {
         logger.info("{} : {}", tweet.getUsername(), tweet.getText());
+        executor.execute(new AnalyzeWorker(tweet));
+    }
 
-        if (available.availablePermits() == 0) {
-            logger.info("All Done!");
-            logger.info(stats.toString());
-        }
-
-        try {
-            available.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-        Future<Sentiment> result = executor.submit (new TweetAnalyzeCallable(tweet));
-        Sentiment sentiment = null;
-        try {
-            sentiment = result.get();
-            tweet.setSentiment(sentiment);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ExecutionException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        finally {
-            available.release();
-        }
-        logger.info("{} Sentiment: {}", tweet.getText(), sentiment);
-
-
-        tweetRepository.save(tweet);
+    public void done() {
+       logger.info("Analysis Complete");
+       logger.info(stats.toString());
     }
 
     public SentimentAnalyzer getAnalyzer() {
@@ -67,17 +44,31 @@ public class AnalyzingTweetSink implements TweetSink {
         this.analyzer = analyzer;
     }
 
-    class TweetAnalyzeCallable implements Callable<Sentiment> {
+    class AnalyzeWorker implements Runnable {
 
         private final Tweet tweet;
 
-        TweetAnalyzeCallable (Tweet tweet) {
+        AnalyzeWorker(Tweet tweet) {
             this.tweet = tweet;
         }
 
         @Override
-        public Sentiment call() throws Exception {
-           return analyzer.analyze(tweet.getText());
+        public void run() {
+
+            Tweet existing = tweetRepository.findByStatusId(tweet.getStatusId());
+            if (existing != null) {
+                logger.warn("Already seen this tweet, skipping");
+                return;
+            }
+
+            Sentiment sentiment = analyzer.analyze(tweet.getText());
+            logger.info("{} Sentiment: {}", tweet.getText(), sentiment);
+
+            if (sentiment != null) {
+                stats.add(sentiment);
+                tweet.setSentiment(sentiment);
+                tweetRepository.save(tweet);
+            }
         }
     }
 

@@ -4,21 +4,17 @@ package com.sdg.ts.service;
 import com.google.common.base.CharMatcher;
 import com.sdg.ts.model.Mood;
 import com.sdg.ts.model.Sentiment;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -44,14 +40,14 @@ public class ViralHeatSentimentAnalyzer implements SentimentAnalyzer {
         try {
 
             URI uri = builder.build();
-            log.info("Sending request : " + uri.toString());
+            log.debug("Sending request : " + uri.toString());
 
             HttpGet httpget = new HttpGet(uri);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             HttpClient httpclient = new DefaultHttpClient();
             String responseBody = httpclient.execute(httpget, responseHandler);
 
-            log.info("Response body : " + responseBody);
+            log.debug("Response body : " + responseBody);
 
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> responseJson = mapper.readValue(responseBody, Map.class);
@@ -72,22 +68,14 @@ public class ViralHeatSentimentAnalyzer implements SentimentAnalyzer {
             float confidence = Float.valueOf(responseJson.get("prob").toString());
             Sentiment result = new Sentiment(mood, confidence);
 
-            log.info("result: " + result);
-
-
             return result;
+
 
 
         } catch (URISyntaxException e) {
             log.error("Exception building uri", e);
-        } catch (JsonParseException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (JsonMappingException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.54412
+        } catch (Exception e) {
+            log.error("Exception", e);
         }
         return null;
 

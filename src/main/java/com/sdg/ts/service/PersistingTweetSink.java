@@ -18,4 +18,8 @@ public class PersistingTweetSink implements TweetSink {
         logger.info("{} : {}", tweet.getUsername(), tweet.getText());
         tweetRepository.save(tweet);
     }
+
+    @Override
+    public void done() {
+    }
 }

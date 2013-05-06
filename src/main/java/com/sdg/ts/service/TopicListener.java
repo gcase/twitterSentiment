@@ -36,49 +36,62 @@ public class TopicListener {
     @PostConstruct
     public void post() {
         TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
-        twitterStream.addListener(new SimpleStatusListener());
+        twitterStream.addListener(new SimpleStatusListener(twitterStream));
 
         FilterQuery fq = new FilterQuery();
-        fq.track(new String[] {topic.getName()});
+        fq.track(new String[]{topic.getName()});
         twitterStream.filter(fq);
     }
 
-     class SimpleStatusListener implements StatusListener {
-            public void onStatus(Status status) {
-                Tweet tweet = new Tweet();
-                tweet.setUsername(status.getUser().getScreenName());
-                tweet.setDate(new Date());
-                tweet.setText(status.getText());
-                tweet.setStatusId(status.getId());
-                tweetSink.accept(tweet);
+    class SimpleStatusListener implements StatusListener {
 
+        private final TwitterStream stream;
+        int count = 0;
+
+        private final static int MAX_COUNT  = 20;
+
+        public SimpleStatusListener(TwitterStream stream) {
+            this.stream = stream;
+        }
+
+        public void onStatus(Status status) {
+            if (count++ > MAX_COUNT) {
+                tweetSink.done();
+                this.stream.shutdown();
             }
 
-            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-                long statusId = statusDeletionNotice.getStatusId();
-                tweetRepository.deleteByStatusId(statusId);
 
+            Tweet tweet = new Tweet();
+            tweet.setUsername(status.getUser().getScreenName());
+            tweet.setDate(new Date());
+            tweet.setText(status.getText());
+            tweet.setStatusId(status.getId());
+            tweetSink.accept(tweet);
 
-            }
+        }
 
-            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-               log.warn("Track Limitation Notice :  {}", numberOfLimitedStatuses);
-            }
+        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+            long statusId = statusDeletionNotice.getStatusId();
+            tweetRepository.deleteByStatusId(statusId);
+        }
 
-            @Override
-            public void onScrubGeo(long userId, long upToStatusId) {
-                //not tracked, can be ignored
-            }
+        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+            log.warn("Track Limitation Notice :  {}", numberOfLimitedStatuses);
+        }
 
-            @Override
-            public void onStallWarning(StallWarning warning) {
-                log.warn("StallWarning: {}", warning.getMessage() );
-            }
+        @Override
+        public void onScrubGeo(long userId, long upToStatusId) {
+            //not tracked, can be ignored
+        }
 
-            public void onException(Exception ex) {
-    //           log.error("Exception reading stream", ex);
-            }
+        @Override
+        public void onStallWarning(StallWarning warning) {
+            log.warn("StallWarning: {}", warning.getMessage());
+        }
 
+        public void onException(Exception ex) {
+            //           log.error("Exception reading stream", ex);
+        }
 
 
     }
