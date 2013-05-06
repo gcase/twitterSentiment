@@ -165,7 +165,7 @@ class AnalyzeWorker implements Runnable {
       }
   }
 ```    
-As you can see, it checks to see if the Tweet has already been analyzed, just in case our stream hiccups or our server restarts. It then uses our injected SentimentAnalyzer to determine the Sentiment, and finally persists the Tweet. The SentimentAnalyzer implementation itself is AlchemyApiSentimentAnalyzer. It’s not exactly pretty, but it works.
+As you can see, it checks to see if the Tweet has already been analyzed, just in case our stream hiccups or our server restarts. It then uses our injected SentimentAnalyzer to determine the Sentiment, and finally persists the Tweet. The SentimentAnalyzer implementation itself is [AlchemyApiSentimentAnalyzer](https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/AlchemyApiSentimentAnalyzer.java). It’s not exactly pretty, but it works.
 
 Now that we’ve run thru the code, let’s stick a couple of topics at it. Here is Iron Man 3:
 
