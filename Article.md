@@ -20,6 +20,7 @@ _The movie was *great*!  *Excellent* explosions!_   5 + 10 = 15
 _I though the movie was *terrible*.  *Boring*!_   -5 + -3  = -8
 
 So far so good, for these completely contrived and unrealistic examples.  But notice how quickly we run into trouble.  For instance, the word “sick” can mean different things in context:
+
 _I got *sick* after I ate Taco Bell._
 
 _These rhymes are *sick*!_
@@ -89,10 +90,11 @@ public class Sentiment {
     //implementation omitted
 }
 
-@Entity
+
 /**
 * A topic is what users which to search twitter for.
 */
+@Entity
 public class Topic {
  
     @Id
