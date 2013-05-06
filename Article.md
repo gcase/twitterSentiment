@@ -173,5 +173,5 @@ Positive: 32, average confidence: 0.18
 Overall Mood: Positive, confidence: 0.09
 ```
 
-Now that we have a skeleton of an application, there are a number of different directions we could take it.  One can imagine a service where a brand manager could configure a number of topics to monitor.  Especially negative messages could trigger a follow up with a Customer Support Specialist.  Or it could be used to gauge the effectiveness of a new ad campaign in real time.    Topics could be monitored for a sudden upswing or downswing in sentiment, perhaps indicating something has gone viral.  Or the service could even be used for purchase decisions, pitting Honda against Toyota and seeing which one as a greater positive sentiment.
+Now that we have a skeleton of an application, there are a number of different directions we could take it.  One can imagine a service where a brand manager could configure a number of topics to monitor.  Especially negative messages could trigger a follow up with a Customer Support Specialist.  Or it could be used to gauge the effectiveness of a new ad campaign in real time.    Topics could be monitored for a sudden upswing or downswing in sentiment, perhaps indicating something has gone viral.  Or the service could even be used for purchase decisions, pitting Honda against Toyota and seeing which one has a greater positive sentiment.
 
