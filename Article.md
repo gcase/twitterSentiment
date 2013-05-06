@@ -74,17 +74,91 @@ As you can see, this service does an admirable job of analyzing the sentiment of
 
 We’ll do a brief overview of the code, starting with our simple data model.
 
-<script src="https://gist.github.com/gcase/9268d8b08220cd57d7ae.js"></script>
+```java
+public enum Mood {
+    POSITIVE,  NEUTRAL, NEGATIVE
+}
 
-We’re going to use a library called Twitter4j to stream results from Twitter that match a given Topic.  The full code is lengthy is can be found at TopicListener.java, but this is the part we’re most concerned with:
+@Embeddable
+public class Sentiment {
+ 
+    private Mood mood;
+ 
+    private float confidence;
+    
+    //implementation omitted
+}
 
+@Entity
+/**
+* A topic is what users which to search twitter for.
+*/
+public class Topic {
+ 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long topicId;
+ 
+    private String name;
+ 
+}
 
+@Entity
+public class Tweet {
+ 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long tweetId;
+    
+    /** statusId is the unique key assigned by Twitter */
+    private Long statusId;
+ 
+    private String text;
+ 
+    private String username;
+ 
+    private Date date;
+ 
+    private Sentiment sentiment;
+    
+    //implementation omitted
+}
+```
 
-The TweetSinkis nothing more than an interface that can consume a Tweet.  We happen to have AnalyzingTweetSink implementation. It uses an Executor to dispatch the analysis of a Tweet to a SentimentAnalyzer interface.  This code is using a simple single threated Executor, as we don’t want to overwhelm the service just for this demonstration.  You can also see that we are using a class called SentimentStats, which is just there to aggregate the Sentiments we’ve generated for the tweets, and provide some useful metrics. 
+We’re going to use a library called [Twitter4j](http://twitter4j.org/en/index.html) to stream results from Twitter that match a given Topic.  The full code is lengthy is can be found at [TopicListener.java]https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/TopicListener.java, but this is the part we’re most concerned with:
+
+The [TweetSink](https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/TweetSink.java) is nothing more than an interface that can consume a Tweet.  We happen to have [AnalyzingTweetSink](https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/AnalyzingTweetSink.java) implementation. It uses an Executor to dispatch the analysis of a Tweet to a [SentimentAnalyzer](https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/SentimentAnalyzer.java) interface.  This code is using a simple single threated Executor, as we don’t want to overwhelm the service just for this demonstration.  You can also see that we are using a class called [SentimentStats](https://github.com/gcase/twitterSentiment/blob/master/src/main/java/com/sdg/ts/service/SentimentStats.java), which is just there to aggregate the Sentiments we’ve generated for the tweets, and provide some useful metrics. 
 Here is the code doing the Executor will run for each Tweet:
 
-<script src="https://gist.github.com/gcase/46453b32b9cb5fa02dde.js"></script>
+```java
+class AnalyzeWorker implements Runnable {
 
+      private final Tweet tweet;
+
+      AnalyzeWorker(Tweet tweet) {
+          this.tweet = tweet;
+      }
+
+      @Override
+      public void run() {
+
+          Tweet existing = tweetRepository.findByStatusId(tweet.getStatusId());
+          if (existing != null) {
+              logger.warn("Already seen this tweet, skipping");
+              return;
+          }
+
+          Sentiment sentiment = analyzer.analyze(tweet.getText());
+          logger.info("{} Sentiment: {}", tweet.getText(), sentiment);
+
+          if (sentiment != null) {
+              stats.add(sentiment);
+              tweet.setSentiment(sentiment);
+              tweetRepository.save(tweet);
+          }
+      }
+  }
+```    
 As you can see, it checks to see if the Tweet has already been analyzed, just in case our stream hiccups or our server restarts. It then uses our injected SentimentAnalyzer to determine the Sentiment, and finally persists the Tweet.  The SentimentAnalyzer implementation itself is AlchemyApiSentimentAnalyzer.    It’s not exactly pretty, but it works.
 
 Now that we’ve run thru the code, let’s stick a couple of topics at it.  Here is Iron Man 3:
