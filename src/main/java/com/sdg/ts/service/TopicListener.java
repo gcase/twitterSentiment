@@ -60,7 +60,6 @@ public class TopicListener {
                 this.stream.shutdown();
             }
 
-
             Tweet tweet = new Tweet();
             tweet.setUsername(status.getUser().getScreenName());
             tweet.setDate(new Date());
@@ -70,11 +69,13 @@ public class TopicListener {
 
         }
 
+        @Override
         public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
             long statusId = statusDeletionNotice.getStatusId();
             tweetRepository.deleteByStatusId(statusId);
         }
 
+        @Override
         public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
             log.warn("Track Limitation Notice :  {}", numberOfLimitedStatuses);
         }
@@ -89,8 +90,9 @@ public class TopicListener {
             log.warn("StallWarning: {}", warning.getMessage());
         }
 
+        @Override
         public void onException(Exception ex) {
-            //           log.error("Exception reading stream", ex);
+            log.error("Exception reading stream", ex);
         }
 
 
