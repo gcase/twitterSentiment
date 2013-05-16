@@ -39,11 +39,20 @@ AlchemyAPI provide a REST interface which will analyze the provided text and giv
 
 Let’s use the service analyze this actual tweet by John Carmick about the new Iron Man 3 movie:
 
+
 <blockquote class="twitter-tweet"><p>Iron Man 3 was fun, but letting the tech genie of autonomously controlled, series produced armor out of the bottle hampers future stories.</p>&mdash; John Carmack (@ID_AA_Carmack) <a href="https://twitter.com/ID_AA_Carmack/status/331232260856639488">May 6, 2013</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-Doing a POST to http://access.alchemyapi.com/calls/text/TextGetTextSentiment?apikey=XXXXX&text=Iron+Man+3+was+fun%2C+but+letting+the+tech+genie+of+autonomously+controlled%2C+series+produced+armor+out+of+the+bottle+hampers+future+stories.&outputMode=json
-provides the following response:
+To do so, we need to a POST to http://access.alchemyapi.com/calls/text/TextGetTextSentiment with the following parametes:
+
+| Parameter | Value                                      |
+|-----------|--------------------------------------------|
+|apiKey     | the key assigned to use when we registered |
+|text       | the text to analyze                        | 
+|outputMode | format of the results.  xml or json        |
+
+
+In this case, we get back the following response:
 
 ```javascript
  {
@@ -177,5 +186,18 @@ Positive: 32, average confidence: 0.18
 Overall Mood: Positive, confidence: 0.09
 ```
 
-Now that we have a skeleton of an application, there are a number of different directions we could take it. One can imagine a service where a brand manager could configure a number of topics to monitor. Especially negative messages could trigger a follow up with a Customer Support Specialist. Or it could be used to gauge the effectiveness of a new ad campaign in real time. Topics could be monitored for a sudden upswing or downswing in sentiment, perhaps indicating something has gone viral. Or the service could even be used for purchase decisions, pitting Honda against Toyota and seeing which one has a greater positive sentiment.
+And here is what it returns for the IRS (Spoiler alert: Most people don't like the IRS)
+
+```
+Total: 101
+Negative: 59, average confidence: -0.18
+Neutral: 15
+Positive: 27, average confidence: 0.11
+Overall Mood: Negative, confidence: -0.09
+```
+
+
+Now that we have a skeleton of an application, there are a number of different directions we could take it. One can imagine a service where a brand manager could configure a number of topics to monitor. Especially negative messages could trigger a follow up with a Customer Support Specialist. Or it could be used to gauge the effectiveness of a new ad campaign in real time. Topics could be monitored for a sudden upswing or downswing in sentiment, perhaps indicating something has gone viral. Or the service could even be used for purchase decisions, pitting Honda against Toyota and seeing which one has a greater positive sentiment.  
+
+
 
