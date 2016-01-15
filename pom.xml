@@ -12,7 +12,7 @@
         <logback.version>1.0.11</logback.version>
         <spring.version>3.2.2.RELEASE</spring.version>
         <hibernate.version>4.2.0.Final</hibernate.version>
-        <twitter4j.version>3.0.3</twitter4j.version>
+        <twitter4j.version>4.0.4</twitter4j.version>
         <hsqldb.version>2.2.9</hsqldb.version>
     </properties>
 
@@ -50,11 +50,6 @@
         </dependency>
 
         <!--Twitter 4j -->
-        <dependency>
-            <groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j</artifactId>
-            <version>${twitter4j.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
