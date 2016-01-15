@@ -7,6 +7,4 @@
 .DS_Store
 log/
 target/
-alchemyapi.properties
-twitter4j.properties
-viralheat.properties
+
